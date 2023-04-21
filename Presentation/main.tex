@@ -1,0 +1,159 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usetheme{Madrid}
+\usecolortheme{default}
+\usepackage[export]{adjustbox}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\DeclareRobustCommand{\bbone}{\text{\usefont{U}{bbold}{m}{n}1}}
+
+\DeclareMathOperator{\EX}{\mathbb{E}}% expected value
+%------------------------------------------------------------
+%This block of code defines the information to appear in the
+%Title page
+\title[GANs] %optional
+{GAN: Generative Adversial Network}
+
+
+\author[Saurabh R. Bhandari] % (optional)
+{Saurabh R. Bhandari}
+
+\institute[BITS Pilani] % (optional)
+{
+  Birla Institute of Technology and Science,Pilani\\
+  f20212412@pilani.bits-pilani.ac.in\\
+  https://github.com/SaurabhRBhandari\\
+}
+
+\date[October 9,2022] % (optional)
+{October 9,2022}
+
+
+%End of title page configuration block
+%------------------------------------------------------------
+
+i
+
+%------------------------------------------------------------
+%The next block of commands puts the table of contents at the 
+%beginning of each section and highlights the current section
+
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+%------------------------------------------------------------
+
+
+\begin{document}
+
+%The next statement creates the title page.
+\frame{\titlepage}
+
+
+%---------------------------------------------------------
+%This block of code is for the table of contents after
+%the title page
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+%---------------------------------------------------------
+
+\section{Background}
+\begin{frame}
+\frametitle{Unsupervsed Learning?}
+\begin{itemize}
+    \item Use of ML algorithms to cluster unlabeled data.
+    \item No need for any human intervention.
+    \item Ideal for exploratory data analysis, image recognition, etc.
+\end{itemize}
+\end{frame}
+\begin{frame}
+\frametitle{Why GANs?}
+\begin{block}{Definition}
+Generative Adversarial Networks belong to the set of generative models. It means that they are able to produce / to generate  new content.
+\end{block}
+\begin{alertblock}{Applications}
+\begin{itemize}
+    \item Generate Realistic Photographs
+    \item Video Prediction
+    \item 3D Object Generation
+\end{itemize}
+\end{alertblock}
+\includegraphics[scale=0.30,center]{Example-of-GAN-Generated-Photographs-of-Bedrooms.png}
+\end{frame}
+\begin{frame}
+\frametitle{Generating Random Variables}
+\begin{block}{Inverse Transform Method}
+The idea of the inverse transform method is simply to represent our complex random variable as the result of a function applied to a uniform random variable we know how to generate.
+\end{block}
+Consider a one dimensional example. Let $X $\sim$ f_X(x)$ and $F_X(x)$ denote it's CDF. We want to generate X which are distributed according to this distribution.
+\begin{itemize}
+    \item Generate $u$ such that \begin{math} U $\sim$ Unif[0,1] \end{math}.
+    \item Find the inverse of desired CDF, $F^{-1}_X(x)$.
+    \item Compute $X=F^{-1}_X(U)$.
+\end{itemize}
+\begin{alertblock}{Note}
+ Inverse transform method is a way to generate a random variable that follows a given distribution by making a uniform random variable goes through a well designed “transform function” (inverse CDF).
+\end{alertblock}
+\end{frame}
+\section{Method}
+\begin{frame}{Intution}
+We are to generate images of cats of size nxn. This data can be represented as a N=nxn dimensional vector. Call this vector X. Now, X has to be sampled from a very specific probability distribution. 
+\begin{block}{Eureka!}
+    Use Neural Network to model the inverse of this cdf.
+\end{block}
+\includegraphics[scale=0.35,center]{1_CkMMefLPqcEKPuuPLZY2_A.png}
+\end{frame}
+\begin{frame}{Training}
+    We now need to optimize the neural network to express the right transform function. 
+    The approach GANs take is in the form of a downstream task of discrimination between true and generated samples.
+    \begin{block}{Discriminator}
+        The goal of the discriminator is to detect fake generated data, so the discriminative neural network is trained to minimise the final classification error
+    \end{block}
+    \begin{block}{Generator}
+        The goal of the generator is to fool the discriminator, so the generative neural network is trained to maximise the final classification error (between true and generated data).
+    \end{block}
+    \begin{alertblock}{Objective}
+        $
+        \min_G \max_D V(D,G) = \EX_{x \sim p_{data}(x)} \log D(x^{(i)}) +  \EX_{z \sim p_{z}(z)} \log (1-D(G(z^{(i)})))
+        $
+    \end{alertblock}
+\end{frame}
+\begin{frame}{Algorithm}
+For no. of iterations do:\\
+\hspace{1cm}For k steps do:\\
+\hspace{2cm}Sample minibatch of \(m\) noise samples from \(p_g(z)\).\\
+\hspace{2cm}Sample minibatch of \(m\) examples from \(p_{data}(x)\).\\
+\hspace{2cm}Update the discriminator by stochastic gradient ascend\\
+\hspace{3cm}$
+\nabla_{\theta_d}\frac{1}{m}\sum_{i=1}^{m}[ \log D(x^{(i)}) + \log (1-D(G(z^{(i)}))) ].
+$\\
+\hspace{1cm}Sample minibatch of \(m\) noise samples from \(p_g(z)\).\\
+\hspace{1cm}Update the generator by stochastic gradient descend\\
+\hspace{3cm}$\nabla_{\theta_g}\frac{1}{m}\sum_{i=1}^{m}[ \log (1-D(G(z^{(i)}))) ].$\\
+\hspace{1cm}
+\end{frame}
+\section{Applications}
+\begin{frame}{Vector Arithmetics}
+\includegraphics[scale=0.55,center]{Example-of-Vector-Arithmetic-for-GAN-Generated-Faces.png}
+\end{frame}
+\begin{frame}{Text to Image Translation-Stack GAN}
+\includegraphics[scale=0.55,center]{Example-of-Textual-Descriptions-and-GAN-Generated-Photographs-of-Birds.png}
+\end{frame}
+\begin{frame}{Video Prediction-Future GAN}
+\includegraphics[scale=0.55,center]{Example-of-Video-Frames-Generated-with-a-GAN.png}
+\end{frame}
+\begin{frame}{Style GAN-NVidia}
+\includegraphics[scale=1,center]{images.jpeg}
+\centerline{\href{https://thispersondoesnotexist.com/}{Click Here }}
+\end{frame}
+\begin{frame}{}
+\centerline{Thank You!}
+\end{frame}
+\end{document}
