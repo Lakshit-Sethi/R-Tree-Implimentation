@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdlib.h>
 typedef struct pair pair;
 struct pair // stores maximum and minimum limits of any dimension(In our case only 2-D)
 {
@@ -14,16 +15,19 @@ struct MBR
 };
 
 typedef struct Node Node;
+typedef struct Entry Entry;
 struct Node // Node of the tree
 {
-    bool isLeaf;           // To check if it is a leaf node or not
-    MBR boundingRectangle; // the rectangle bounding all of its children if it is a non leaf node
-    int noOfChildren;      // for iterating througn the array of children.
-    union
-    {
-        MBR *rectangle;    // Used if it is a leaf node and points to a rectangle which bounds our object.
-        Node **childNodes; // Used if it is a non-leaf node
-    } children;
+    int noOfEntries;
+    bool isLeaf;
+    Entry **entries;
+    Entry *parent;
+};
+
+struct Entry
+{
+    MBR *rectangle;
+    Node *childNode;
 };
 
 typedef struct rTree rTree;
@@ -31,5 +35,11 @@ struct rTree
 {
     int maxChildren; // M
     int minChildren; // m
-    Node *start;      // root of the tree.
+    Entry *start;    // contains a pointer to root of the tree.
+    Node *root;
 };
+
+MBR *createMBR(int minX, int maxX, int minY, int maxY);
+Node *createNode(Entry *parent, rTree *tree);
+Entry *createEntry(MBR *rectangle, Node *child);
+rTree *createRtree(int minchild, int maxchild);
