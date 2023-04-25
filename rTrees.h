@@ -43,3 +43,6 @@ MBR *createMBR(int minX, int maxX, int minY, int maxY);
 Node *createNode(Entry *parent, rTree *tree);
 Entry *createEntry(MBR *rectangle, Node *child);
 rTree *createRtree(int minchild, int maxchild);
+void traverse(Node *currNode);
+void printEntry(Entry *Entry);
+void preOrderTraversal(rTree *tree);
