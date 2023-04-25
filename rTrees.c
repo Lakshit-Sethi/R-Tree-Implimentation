@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "rTrees.h"
 
 MBR *createMBR(int minX, int maxX, int minY, int maxY)
@@ -40,4 +41,32 @@ rTree *createRtree(int minchild, int maxchild)
     tree->root = createNode(tree->start, tree);
     tree->root->isLeaf = 1;
     return tree;
+}
+
+void printEntry(Entry *Entry)
+{
+    MBR *MBR = Entry->rectangle;
+    printf("Top Right -> %d,%d\n", MBR->pairX.maxLimit, MBR->pairY.maxLimit);
+    printf("Bottom Left -> %d,%d\n", MBR->pairX.minLimit, MBR->pairY.minLimit);
+    return;
+}
+
+void traverse(Node *currNode)
+{
+    if (currNode == NULL)
+    {
+        return;
+    }
+    for (int i = 0; i < currNode->noOfEntries; i++)
+    {
+        printEntry(currNode->entries[i]);
+        traverse(currNode->entries[i]->childNode);
+    }
+    return;
+}
+
+void preOrderTraversal(rTree *tree)
+{
+    printEntry(tree->start);
+    traverse(tree->root);
 }
