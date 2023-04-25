@@ -38,5 +38,6 @@ rTree *createRtree(int minchild, int maxchild)
     tree->start = (Entry *)malloc(sizeof(Entry));
     tree->start->rectangle = NULL;
     tree->root = createNode(tree->start, tree);
+    tree->root->isLeaf = 1;
     return tree;
 }
