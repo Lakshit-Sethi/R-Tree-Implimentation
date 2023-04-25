@@ -31,5 +31,5 @@ struct rTree
 {
     int maxChildren; // M
     int minChildren; // m
-    Node *root;      // root of the tree.
+    Node *start;      // root of the tree.
 };
