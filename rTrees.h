@@ -21,7 +21,8 @@ struct Node // Node of the tree
     int noOfEntries;
     bool isLeaf;
     Entry **entries;
-    Entry *parent;
+    Entry *parentEntry;
+    Node *parent;
 };
 
 struct Entry
@@ -40,6 +41,6 @@ struct rTree
 };
 
 MBR *createMBR(int minX, int maxX, int minY, int maxY);
-Node *createNode(Entry *parent, rTree *tree);
+Node *createNode(Entry *parentEntry,Node* parentNode, rTree *tree);
 Entry *createEntry(MBR *rectangle, Node *child);
 rTree *createRtree(int minchild, int maxchild);
