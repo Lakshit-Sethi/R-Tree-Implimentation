@@ -29,6 +29,8 @@ MBR *createMBR(int minX, int maxX, int minY, int maxY)
     return rectangle;
 }
 
+int uid=0;
+
 Node *createNode(Entry *parentEntry, Node *parent, rTree *tree)
 {
     Node *node = (Node *)malloc(sizeof(Node));
@@ -36,7 +38,8 @@ Node *createNode(Entry *parentEntry, Node *parent, rTree *tree)
     node->isLeaf = 0;
     node->parentEntry = parentEntry;
     node->parent = parent;
-    node->entries = (Entry **)malloc(tree->maxChildren * (sizeof(Entry *)));
+    node->entries = (Entry **)malloc((tree->maxChildren+1) * (sizeof(Entry *)));
+    node->index = uid++;
     return node;
 }
 
@@ -67,8 +70,8 @@ void printEntry(Entry *Entry)
     {
         return;
     }
-    printf("Top Right -> %d,%d\n", MBR->pairX.maxLimit, MBR->pairY.maxLimit);
-    printf("Bottom Left -> %d,%d\n", MBR->pairX.minLimit, MBR->pairY.minLimit);
+    printf("\t\tTop Right -> %d,%d\n", MBR->pairX.maxLimit, MBR->pairY.maxLimit);
+    printf("\t\tBottom Left -> %d,%d\n", MBR->pairX.minLimit, MBR->pairY.minLimit);
     return;
 }
 
@@ -78,11 +81,14 @@ void traverse(Node *currNode)
     {
         return;
     }
+    printf("Entering Node %d\n", currNode->index);
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
+        printf("\tEntry %d\n", i);
         printEntry(currNode->entries[i]);
         traverse(currNode->entries[i]->childNode);
     }
+    printf("Exiting Node %d\n", currNode->index);
     return;
 }
 
@@ -140,6 +146,7 @@ Node *chooseLeaf(Node *currNode, MBR *newrectangle)
 // pick seeds for splitting
 void pickSeeds(Node *currNode, int *seed1, int *seed2)
 {
+    printf("[Picking seeds]\n");
     int maxDiff = 0;
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
@@ -160,12 +167,14 @@ void pickSeeds(Node *currNode, int *seed1, int *seed2)
             }
         }
     }
+    printf("[Exiting pickSeeds]\n");
     return;
 }
 
 // pick next entry to be added to a group
 int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
 {
+    printf("[Entering pickNext]\n");
     int maxDiff = 0;
     int maxIndex = 0;
     MBR *g1rect = group1->rectangle;
@@ -221,30 +230,65 @@ int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
             }
         }
     }
+
+    printf("[Exiting pickNext]\n");
     return maxIndex;
 }
 
+
+MBR* findMBR(Node* currNode)
+{
+    int minx=currNode->entries[0]->rectangle->pairX.minLimit;
+    int miny=currNode->entries[0]->rectangle->pairY.minLimit;
+    int maxx=currNode->entries[0]->rectangle->pairX.maxLimit;
+    int maxy=currNode->entries[0]->rectangle->pairY.maxLimit;
+    for(int i=1;i<currNode->noOfEntries;i++)
+    {
+        minx=min(minx,currNode->entries[i]->rectangle->pairX.minLimit);
+        miny=min(miny,currNode->entries[i]->rectangle->pairY.minLimit);
+        maxx=max(maxx,currNode->entries[i]->rectangle->pairX.maxLimit);
+        maxy=max(maxy,currNode->entries[i]->rectangle->pairY.maxLimit);
+    }
+    return createMBR(minx,maxx,miny,maxy);
+}
+
 // quadratic split
+//TODO: Free the end parts.Please Free.
+//TODO: Memory Leak
 void quadraticSplit(Node *currNode, rTree *tree)
 {
-    // printf("Noo");
+    printf("[Entering Split]\n");
     int seed1,seed2;
     pickSeeds(currNode,&seed1,&seed2);
-    Node *group1 = createNode(currNode->entries[seed1],currNode,tree);
-    Node *group2 = createNode(currNode->entries[seed2],currNode,tree);
+    Node *group1 = createNode(NULL,currNode,tree);
+    Node *group2 = createNode(NULL,currNode,tree);
+    if(currNode->isLeaf==true)
+    {
+        group1->isLeaf=true;
+        group2->isLeaf=true;
+        currNode->isLeaf=false;
+    }
+    else
+    {
+        group1->isLeaf=false;
+        group2->isLeaf=false;
+    }
     group1->noOfEntries=1;
     group2->noOfEntries=1;
     group1->entries[0]=currNode->entries[seed1];
     group2->entries[0]=currNode->entries[seed2];
-    currNode->entries[seed1]=NULL;
-    currNode->entries[seed2]=NULL;
-    currNode->noOfEntries-=2;
+    currNode->entries[seed2]=currNode->entries[currNode->noOfEntries-1];
+    currNode->noOfEntries--;
+    currNode->entries[seed1]=currNode->entries[currNode->noOfEntries-1];
+    currNode->noOfEntries--;
+
     while(currNode->noOfEntries>0)
     {
         if(group1->noOfEntries==tree->maxChildren)
         {
             for(int i=0;i<currNode->noOfEntries;i++)
             {
+                printEntry(currNode->entries[i]);
                 group2->entries[group2->noOfEntries]=currNode->entries[i];
                 group2->noOfEntries++;
             }
@@ -255,6 +299,7 @@ void quadraticSplit(Node *currNode, rTree *tree)
         {
             for(int i=0;i<currNode->noOfEntries;i++)
             {
+                printEntry(currNode->entries[i]);
                 group1->entries[group1->noOfEntries]=currNode->entries[i];
                 group1->noOfEntries++;
             }
@@ -275,31 +320,39 @@ void quadraticSplit(Node *currNode, rTree *tree)
                 group2->entries[group2->noOfEntries]=currNode->entries[index];
                 group2->noOfEntries++;
             }
+            printf("{");
+            
+            printEntry(currNode->entries[index]);
+            printf("}\n");
             currNode->entries[index]=currNode->entries[currNode->noOfEntries-1];
+            // free(currNode->entries[currNode->noOfEntries-1]);
             currNode->noOfEntries--;
         }
     }
+    if(currNode->parent==NULL)
+    {
+        currNode->noOfEntries=2;
+        currNode->entries[0]=createEntry(findMBR(group1),group1);
+        currNode->entries[1]=createEntry(findMBR(group2),group2);
+        group1->parent=currNode;
+        group2->parent=currNode;
+        tree->root=currNode;
+        currNode->isLeaf=false;
+    }
+    else
+    {
+        currNode->parentEntry->childNode=group1;
+        currNode->parent->entries[currNode->parent->noOfEntries]=createEntry(findMBR(group2),group2);
+        currNode->parent->noOfEntries++;
+    }
+    printf("[Exiting Split]\n");
 }
 
-MBR* findMBR(Node* currNode)
-{
-    int minx=currNode->entries[0]->rectangle->pairX.minLimit;
-    int miny=currNode->entries[0]->rectangle->pairY.minLimit;
-    int maxx=currNode->entries[0]->rectangle->pairX.maxLimit;
-    int maxy=currNode->entries[0]->rectangle->pairY.maxLimit;
-    for(int i=1;i<currNode->noOfEntries;i++)
-    {
-        minx=min(minx,currNode->entries[i]->rectangle->pairX.minLimit);
-        miny=min(miny,currNode->entries[i]->rectangle->pairY.minLimit);
-        maxx=max(maxx,currNode->entries[i]->rectangle->pairX.maxLimit);
-        maxy=max(maxy,currNode->entries[i]->rectangle->pairY.maxLimit);
-    }
-    return createMBR(minx,maxx,miny,maxy);
-}
 
 // adjust tree after insertion
 void adjustTree(Node *currNode, rTree *tree)
 {
+    printf("[Entering Adjust]\n");
     if (currNode == NULL)
     {
         return;
@@ -327,22 +380,24 @@ void adjustTree(Node *currNode, rTree *tree)
     {
         adjustTree(parent, tree);
     }
+    printf("[Exiting Adjust]\n");
 }
 
 
 
 //write insert function using choose leaf, quadratic split and adjust tree
-void insert(rTree *tree, int x1, int y1, int x2, int y2)
+void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
 {
-    if(x1>x2)
+    printf("[Entering Insert]\n");
+    if(minX>maxX)
     {
-        swap(&x1,&x2);
+        swap(&minX,&maxX);
     }
-    if(y1>y2)
+    if(minY>maxY)
     {
-        swap(&y1,&y2);
+        swap(&minY,&maxY);
     }
-    MBR *rect = createMBR(x1, x2, y1, y2);
+    MBR *rect = createMBR(minX, maxX, minY, maxY);
     Node *currNode = chooseLeaf(tree->root, rect);
     Entry *entry = createEntry(rect, NULL);
 
@@ -358,6 +413,7 @@ void insert(rTree *tree, int x1, int y1, int x2, int y2)
     {
         adjustTree(currNode, tree);
     }
+    printf("[Exiting Insert]\n");
 }
 
 bool isOverlapping(MBR *rect1, MBR *rect2)
@@ -375,7 +431,7 @@ bool isOverlapping(MBR *rect1, MBR *rect2)
 
 
 // search overlapping rectangles
-void search(Node *currNode, MBR *rect)
+void search_utility(Node *currNode, MBR *rect)
 {
     if (currNode == NULL)
     {
@@ -387,6 +443,7 @@ void search(Node *currNode, MBR *rect)
         {
             if (isOverlapping(currNode->entries[i]->rectangle, rect))
             {
+                printf("! ");
                 printEntry(currNode->entries[i]);
             }
         }
@@ -397,25 +454,37 @@ void search(Node *currNode, MBR *rect)
     {
         if (isOverlapping(currNode->entries[i]->rectangle, rect))
         {
-            search(currNode->entries[i]->childNode, rect);
+            search_utility(currNode->entries[i]->childNode, rect);
         }
     }
     
 }
 
+void search(rTree *tree, int minX, int maxX, int minY, int maxY)
+{
+    if(minX>maxX)
+    {
+        swap(&minX,&maxX);
+    }
+    if(minY>maxY)
+    {
+        swap(&minY,&maxY);
+    }
+    MBR *rect = createMBR(minX, maxX, minY, maxY);
+    search_utility(tree->root, rect);
+}
 
 int main()
 {
     rTree *tree = createRtree(2, 4);
     insert(tree, 1, 2, 3, 4);
-    insert(tree, 2, 1, 9, 14);
+    insert(tree, 3, 5, 9, 14);
     insert(tree, 11, 12, 13, 14);
-    insert(tree, 112, 232, 443, 412);
-    preOrderTraversal(tree);
+    insert(tree, 15, 17, 30, 37);
     insert(tree, 10, 20, 30, 40);
     // preOrderTraversal(tree);
-    // printEntry(tree->root->entries[0]);
-    // printEntry(tree->root->entries[0]->childNode->entries[1]);
-
+    // printf("no of entries in root %d\n", tree->root->noOfEntries);
+    // preOrderTraversal(tree);
+    search(tree,3,5,3,40);
     return 0;
 }

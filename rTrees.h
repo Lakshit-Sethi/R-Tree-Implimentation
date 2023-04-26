@@ -23,6 +23,7 @@ struct Node // Node of the tree
     Entry **entries;
     Entry *parentEntry;
     Node *parent;
+    int index; // for debugging purpose
 };
 
 struct Entry
