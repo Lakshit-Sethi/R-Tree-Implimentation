@@ -158,6 +158,10 @@ int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
     MBR *g2rect = group2->rectangle;
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
+        if(currNode->entries[i]->rectangle==NULL)
+        {
+            continue;
+        }
         int minx=min(g1rect->pairX.minLimit,currNode->entries[i]->rectangle->pairX.minLimit);
         int miny=min(g1rect->pairY.minLimit,currNode->entries[i]->rectangle->pairY.minLimit);
         int maxx=max(g1rect->pairX.maxLimit,currNode->entries[i]->rectangle->pairX.maxLimit);
@@ -217,6 +221,9 @@ void quadraticSplit(Node *currNode, rTree *tree)
     group2->noOfEntries=1;
     group1->entries[0]=currNode->entries[seed1];
     group2->entries[0]=currNode->entries[seed2];
+    currNode->entries[seed1]=NULL;
+    currNode->entries[seed2]=NULL;
+    currNode->noOfEntries-=2;
     while(currNode->noOfEntries>0)
     {
         if(group1->noOfEntries==tree->maxChildren)
@@ -307,7 +314,6 @@ MBR* findMBR(Node* currNode)
     return createMBR(minx,maxx,miny,maxy);
 }
 
-//TODO: check if swap exists
 //write insert function using choose leaf, quadratic split and adjust tree
 void insert(rTree *tree, int x1, int y1, int x2, int y2)
 {
