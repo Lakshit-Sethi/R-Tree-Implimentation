@@ -85,8 +85,6 @@ int findArea(MBR *rectangle)
     return length*breadth;
 }
 
-// TODO: check if min max functions are correct
-// TODO: check minimum maximum x and y when creating a new rectangle
 Node *chooseLeaf(Node *currNode, MBR *newrectangle)
 {
     if (currNode->isLeaf)
@@ -149,7 +147,6 @@ void pickSeeds(Node *currNode, int *seed1, int *seed2)
 }
 
 // pick next entry to be added to a group
-// TODO : skip the entries that are already added to a group
 int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
 {
     int maxDiff = 0;
