@@ -321,11 +321,10 @@ void quadraticSplit(Node *currNode, rTree *tree)
                 group2->noOfEntries++;
             }
             printf("{");
-            
+            // free(currNode->entries[currNode->noOfEntries-1]);
             printEntry(currNode->entries[index]);
             printf("}\n");
             currNode->entries[index]=currNode->entries[currNode->noOfEntries-1];
-            // free(currNode->entries[currNode->noOfEntries-1]);
             currNode->noOfEntries--;
         }
     }
@@ -333,7 +332,9 @@ void quadraticSplit(Node *currNode, rTree *tree)
     {
         currNode->noOfEntries=2;
         currNode->entries[0]=createEntry(findMBR(group1),group1);
+        group1->parentEntry=currNode->entries[0];
         currNode->entries[1]=createEntry(findMBR(group2),group2);
+        group2->parentEntry=currNode->entries[1];
         group1->parent=currNode;
         group2->parent=currNode;
         tree->root=currNode;
@@ -341,9 +342,19 @@ void quadraticSplit(Node *currNode, rTree *tree)
     }
     else
     {
+        printEntry(currNode->parentEntry);
         currNode->parentEntry->childNode=group1;
+        currNode->parentEntry->rectangle=findMBR(group1);
         currNode->parent->entries[currNode->parent->noOfEntries]=createEntry(findMBR(group2),group2);
         currNode->parent->noOfEntries++;
+        group1->parent=currNode->parent;
+        group1->parentEntry=currNode->parentEntry;
+        group2->parentEntry=currNode->parent->entries[currNode->parent->noOfEntries-1];
+        group2->parent=currNode->parent;
+        if(currNode->parent->noOfEntries>tree->maxChildren)
+        {
+            quadraticSplit(currNode->parent,tree);
+        }
     }
     printf("[Exiting Split]\n");
 }
@@ -418,11 +429,11 @@ void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
 
 bool isOverlapping(MBR *rect1, MBR *rect2)
 {
-    if (rect1->pairX.minLimit > rect2->pairX.maxLimit || rect1->pairX.maxLimit < rect2->pairX.minLimit)
+    if (rect1->pairX.minLimit >= rect2->pairX.maxLimit || rect1->pairX.maxLimit <= rect2->pairX.minLimit)
     {
         return false;
     }
-    if (rect1->pairY.minLimit > rect2->pairY.maxLimit || rect1->pairY.maxLimit < rect2->pairY.minLimit)
+    if (rect1->pairY.minLimit >= rect2->pairY.maxLimit || rect1->pairY.maxLimit <= rect2->pairY.minLimit)
     {
         return false;
     }
@@ -482,6 +493,8 @@ int main()
     insert(tree, 11, 12, 13, 14);
     insert(tree, 15, 17, 30, 37);
     insert(tree, 10, 20, 30, 40);
+    insert(tree, 5, 7, 8, 9);
+    insert(tree,3,5,3,40);
     // preOrderTraversal(tree);
     // printf("no of entries in root %d\n", tree->root->noOfEntries);
     // preOrderTraversal(tree);
