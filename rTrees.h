@@ -1,5 +1,8 @@
+#ifndef RTREES_H_
+#define RTREES_H_
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 typedef struct pair pair;
 struct pair // stores maximum and minimum limits of any dimension(In our case only 2-D)
 {
@@ -45,3 +48,8 @@ MBR *createMBR(int minX, int maxX, int minY, int maxY);
 Node *createNode(Entry *parentEntry,Node* parentNode, rTree *tree);
 Entry *createEntry(MBR *rectangle, Node *child);
 rTree *createRtree(int minchild, int maxchild);
+void preOrderTraversal(rTree *tree);
+void search(rTree *tree, int minX, int maxX, int minY, int maxY);
+void insert(rTree *tree, int minX, int maxX, int minY, int maxY);
+
+#endif
