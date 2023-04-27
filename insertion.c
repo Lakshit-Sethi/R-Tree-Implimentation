@@ -233,11 +233,6 @@ void quadraticSplit(Node *currNode, rTree *tree)
         group1->parentEntry=currNode->parentEntry;
         group2->parentEntry=currNode->parent->entries[currNode->parent->noOfEntries-1];
         group2->parent=currNode->parent;
-        // TODO: abir
-        if(currNode->parent->noOfEntries>tree->maxChildren)
-        {
-            quadraticSplit(currNode->parent,tree);
-        }
     }
     printf("[Exiting Split]\n");
 }
@@ -293,10 +288,8 @@ void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
 
     currNode->entries[currNode->noOfEntries] = entry;
     currNode->noOfEntries++;
-
     if (currNode->noOfEntries > tree->maxChildren)
     {
-        //TODO: abir
         quadraticSplit(currNode, tree);
         adjustTree(currNode, tree);
     }
