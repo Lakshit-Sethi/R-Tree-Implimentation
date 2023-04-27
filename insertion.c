@@ -1,6 +1,9 @@
 #include "rTrees.h"
 #include "utils.h"
+
 //TODO:memory leak
+
+// choose the most optimal leaf node to insert the new rectangle
 Node *chooseLeaf(Node *currNode, MBR *newrectangle)
 {
     if (currNode->isLeaf)
@@ -13,29 +16,32 @@ Node *chooseLeaf(Node *currNode, MBR *newrectangle)
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
         int currArea = findArea(currNode->entries[i]->rectangle);
+
         int minx=min(currNode->entries[i]->rectangle->pairX.minLimit,newrectangle->pairX.minLimit);
         int miny=min(currNode->entries[i]->rectangle->pairY.minLimit,newrectangle->pairY.minLimit);
         int maxx=max(currNode->entries[i]->rectangle->pairX.maxLimit,newrectangle->pairX.maxLimit);
         int maxy=max(currNode->entries[i]->rectangle->pairY.maxLimit,newrectangle->pairY.maxLimit);
         MBR* newRect=createMBR(minx,maxx,miny,maxy);
+        
         int newArea = findArea(newRect);
-        int area = newArea - currArea;
+        int diffArea = newArea - currArea;
         int minCurrArea = min(minCurrArea, currArea);
-        if (area < minArea)
+        
+        if (diffArea < minArea)
         {
-            minArea = area;
+            minArea = diffArea;
             minIndex = i;
         }
-        else if(area==minArea && currArea<minCurrArea)
+        else if(diffArea==minArea && currArea<minCurrArea)
         {
-            minArea=area;
+            minArea=diffArea;
             minIndex=i;
         }
     }
     return chooseLeaf(currNode->entries[minIndex]->childNode, newrectangle);
 }
 
-
+// pick group representative for splitting current node
 void pickSeeds(Node *currNode, int *seed1, int *seed2)
 {
     printf("[Picking seeds]\n");
@@ -48,9 +54,11 @@ void pickSeeds(Node *currNode, int *seed1, int *seed2)
             int miny=min(currNode->entries[i]->rectangle->pairY.minLimit,currNode->entries[j]->rectangle->pairY.minLimit);
             int maxx=max(currNode->entries[i]->rectangle->pairX.maxLimit,currNode->entries[j]->rectangle->pairX.maxLimit);
             int maxy=max(currNode->entries[i]->rectangle->pairY.maxLimit,currNode->entries[j]->rectangle->pairY.maxLimit);
-            MBR* newRect=createMBR(minx,maxx,miny,maxy);
-            int diff = findArea(newRect)-findArea(currNode->entries[i]->rectangle)-findArea(currNode->entries[j]->rectangle);
+            MBR* unionRect=createMBR(minx,maxx,miny,maxy);
+
+            int diff = findArea(unionRect)-findArea(currNode->entries[i]->rectangle)-findArea(currNode->entries[j]->rectangle);
             diff=abs(diff);
+
             if (diff > maxDiff)
             {
                 maxDiff = diff;
@@ -63,10 +71,11 @@ void pickSeeds(Node *currNode, int *seed1, int *seed2)
     return;
 }
 
-
+// decide which entry to choose next, and which group to put it in
 int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
 {
     printf("[Entering pickNext]\n");
+    
     int maxDiff = 0;
     int maxIndex = 0;
     MBR *g1rect = group1->rectangle;
@@ -127,7 +136,7 @@ int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
     return maxIndex;
 }
 
-
+// split the node into two groups
 void quadraticSplit(Node *currNode, rTree *tree)
 {
     printf("[Entering Split]\n");
@@ -224,6 +233,7 @@ void quadraticSplit(Node *currNode, rTree *tree)
         group1->parentEntry=currNode->parentEntry;
         group2->parentEntry=currNode->parent->entries[currNode->parent->noOfEntries-1];
         group2->parent=currNode->parent;
+        // TODO: abir
         if(currNode->parent->noOfEntries>tree->maxChildren)
         {
             quadraticSplit(currNode->parent,tree);
@@ -286,6 +296,7 @@ void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
 
     if (currNode->noOfEntries > tree->maxChildren)
     {
+        //TODO: abir
         quadraticSplit(currNode, tree);
         adjustTree(currNode, tree);
     }

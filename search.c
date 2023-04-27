@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "rTrees.h"
 
-void search_utility(Node *currNode, MBR *rect)
+void search_utility(Node *currNode, MBR *search_rect)
 {
     if (currNode == NULL)
     {
@@ -11,7 +11,7 @@ void search_utility(Node *currNode, MBR *rect)
     {
         for (int i = 0; i < currNode->noOfEntries; i++)
         {
-            if (isOverlapping(currNode->entries[i]->rectangle, rect))
+            if (isOverlapping(currNode->entries[i]->rectangle, search_rect))
             {
                 printf("\t! ");
                 printEntry(currNode->entries[i]);
@@ -22,9 +22,9 @@ void search_utility(Node *currNode, MBR *rect)
 
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
-        if (isOverlapping(currNode->entries[i]->rectangle, rect))
+        if (isOverlapping(currNode->entries[i]->rectangle, search_rect))
         {
-            search_utility(currNode->entries[i]->childNode, rect);
+            search_utility(currNode->entries[i]->childNode, search_rect);
         }
     }
     
