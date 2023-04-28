@@ -25,6 +25,47 @@ void printEntry(Entry *Entry)
     return;
 }
 
+// Print the details of an entry, plainly
+void printEntryPlain(Entry *Entry)
+{
+    MBR *MBR = Entry->rectangle;
+
+    if (MBR == NULL)
+    {
+        return;
+    }
+
+    green("\t\t%d,%d;", MBR->pairX.maxLimit, MBR->pairY.maxLimit);
+    green("\t%d,%d\n", MBR->pairX.minLimit, MBR->pairY.minLimit);
+
+    return;
+}
+
+void printNode(Node *node)
+{
+    yellow("Entering Node %d\n", node->index);
+    
+    // print all the child nodes of the current node
+    yellow("Child Nodes :- [ ");
+    for(int i = 0; i<node->noOfEntries; i++)
+    {
+        if(node->entries[i]!=NULL && node->entries[i]->childNode != NULL)
+        {
+            yellow("%d,", node->entries[i]->childNode->index);
+        }
+    }
+    yellow("]\n");
+    
+    // print the entries of the current node
+    for (int i = 0; i < node->noOfEntries; i++)
+    {
+        green("\tEntry %d\n", i);
+        printEntry(node->entries[i]);
+    }
+    yellow("Exiting Node %d\n", node->index);
+
+}
+
 // Find the area of a rectangle
 int findArea(MBR *rectangle)
 {

@@ -280,7 +280,7 @@ void adjustTree(Node *currNode, rTree *tree)
         currNode->parentEntry->rectangle = newVal;
 
     // if the parent node needs to be split, split it and adjust the tree
-    if (parent->noOfEntries >= tree->maxChildren)
+    if (parent->noOfEntries > tree->maxChildren)
     {
         quadraticSplit(parent, tree);
         adjustTree(parent->parent, tree);

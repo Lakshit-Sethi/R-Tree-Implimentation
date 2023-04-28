@@ -14,15 +14,25 @@ int main()
     insert(tree, 5, 7, 8, 9);
 
     // traverse the tree
-    preOrderTraversal(tree);
+    // preOrderTraversal(tree);
 
     // insert some more entries
-    insert(tree,3,5,3,40);
+    insert(tree, 3, 5, 3, 40);
 
     // traverse the tree
+    // preOrderTraversal(tree);
+
+    // search for all entries that overlap with the rectangle with bottom left corner (3,3) and top right corner (5,40)
+    insert(tree, 1, 2, 6, 12);
+    // preOrderTraversal(tree);
+    insert(tree, 2, 3, 7, 11);
+    insert(tree, 2, 3, 8, 12);
+    preOrderTraversal(tree);
+    insert(tree, 2, 3, 9, 10);
     preOrderTraversal(tree);
 
     // search for all entries that overlap with the rectangle with bottom left corner (3,3) and top right corner (5,40)
     search(tree,3,5,3,40);
     return 0;
+    
 }

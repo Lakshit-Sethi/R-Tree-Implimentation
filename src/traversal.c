@@ -9,16 +9,10 @@ void preOrderTraversal_Utility(Node *currNode)
     {
         return;
     }
-    yellow("Entering Node %d\n", currNode->index);
 
-    // print the entries of the current node
-    for (int i = 0; i < currNode->noOfEntries; i++)
-    {
-        green("\tEntry %d\n", i);
-        printEntry(currNode->entries[i]);
-    }
-    yellow("Exiting Node %d\n", currNode->index);
-
+    // print the current node
+    printNode(currNode);
+    
     // recursively call the function for the child nodes
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
