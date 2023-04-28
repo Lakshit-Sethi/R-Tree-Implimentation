@@ -9,11 +9,13 @@
 #define red(x...) printf("\033[1;31m");printf(x);printf("\033[0m");
 #define green(x...) printf("\033[1;32m");printf(x);printf("\033[0m");
 #define blue(x...) printf("\033[1;34m");printf(x);printf("\033[0m");
+// #define blue(x...)
 
 void swap(int *a,int *b);
 void printEntry(Entry *Entry);
 int findArea(MBR *rectangle);
 MBR* findMBR(Node* currNode);
 bool isOverlapping(MBR *rect1, MBR *rect2);
+MBR* unionMBR(MBR *rect1, MBR *rect2);
 #endif
 

@@ -1,66 +1,65 @@
 #include "rTrees.h"
 #include "utils.h"
 
-//TODO:memory leak
-
 // choose the most optimal leaf node to insert the new rectangle
-Node *chooseLeaf(Node *currNode, MBR *newrectangle)
+Node *chooseLeaf(Node *currNode, MBR *targetRect)
 {
-    blue("[Choosing leaf node]\n");
+    blue("[Entering chooseLeaf]\n");
+
+    // if currNode is a leaf node, return it
     if (currNode->isLeaf)
     {
         return currNode;
     }
+
     int minArea = INF;
     int minIndex = 0;
     int minCurrArea = INF;
+
+    // find the entry with the least area enlargement
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
+        // find area of the rectangle formed by union of the entry and the target rectangle
         int currArea = findArea(currNode->entries[i]->rectangle);
-
-        int minx=min(currNode->entries[i]->rectangle->pairX.minLimit,newrectangle->pairX.minLimit);
-        int miny=min(currNode->entries[i]->rectangle->pairY.minLimit,newrectangle->pairY.minLimit);
-        int maxx=max(currNode->entries[i]->rectangle->pairX.maxLimit,newrectangle->pairX.maxLimit);
-        int maxy=max(currNode->entries[i]->rectangle->pairY.maxLimit,newrectangle->pairY.maxLimit);
-        MBR* newRect=createMBR(minx,maxx,miny,maxy);
-        
+        MBR *newRect = unionMBR(currNode->entries[i]->rectangle, targetRect);
         int newArea = findArea(newRect);
+        free(newRect);
+
+        // find the difference in old area and the new area
         int diffArea = newArea - currArea;
         int minCurrArea = min(minCurrArea, currArea);
-        
-        if (diffArea < minArea)
+
+        // if the difference is less than the minimum difference, update the minimum difference and the index
+        if ((diffArea < minArea) || (diffArea == minArea && currArea < minCurrArea))
         {
             minArea = diffArea;
             minIndex = i;
         }
-        else if(diffArea==minArea && currArea<minCurrArea)
-        {
-            minArea=diffArea;
-            minIndex=i;
-        }
     }
-    blue("[Exiting chooseLeaf]\n")
-    return chooseLeaf(currNode->entries[minIndex]->childNode, newrectangle);
+
+    blue("[Exiting chooseLeaf]\n");
+    return chooseLeaf(currNode->entries[minIndex]->childNode, targetRect);
 }
 
 // pick group representative for splitting current node
 void pickSeeds(Node *currNode, int *seed1, int *seed2)
 {
     blue("[Picking seeds]\n");
+
+    // store the max difference of two rectangles
     int maxDiff = 0;
+
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
         for (int j = i + 1; j < currNode->noOfEntries; j++)
         {
-            int minx=min(currNode->entries[i]->rectangle->pairX.minLimit,currNode->entries[j]->rectangle->pairX.minLimit);
-            int miny=min(currNode->entries[i]->rectangle->pairY.minLimit,currNode->entries[j]->rectangle->pairY.minLimit);
-            int maxx=max(currNode->entries[i]->rectangle->pairX.maxLimit,currNode->entries[j]->rectangle->pairX.maxLimit);
-            int maxy=max(currNode->entries[i]->rectangle->pairY.maxLimit,currNode->entries[j]->rectangle->pairY.maxLimit);
-            MBR* unionRect=createMBR(minx,maxx,miny,maxy);
+            MBR *unionRect = unionMBR(currNode->entries[i]->rectangle, currNode->entries[j]->rectangle);
 
-            int diff = findArea(unionRect)-findArea(currNode->entries[i]->rectangle)-findArea(currNode->entries[j]->rectangle);
-            diff=abs(diff);
+            // find the difference in area of the union rectangle and the sum of the areas of the two rectangles
+            int diff = findArea(unionRect) - findArea(currNode->entries[i]->rectangle) - findArea(currNode->entries[j]->rectangle);
+            free(unionRect);
 
+            // if the difference is greater than the maximum difference, update the maximum difference and the seeds
             if (diff > maxDiff)
             {
                 maxDiff = diff;
@@ -74,63 +73,47 @@ void pickSeeds(Node *currNode, int *seed1, int *seed2)
 }
 
 // decide which entry to choose next, and which group to put it in
-int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
+int pickNext(Node *currNode, Entry *group1, Entry *group2, bool *res)
 {
     blue("[Entering pickNext]\n");
-    
+
     int maxDiff = 0;
     int maxIndex = 0;
+
     MBR *g1rect = group1->rectangle;
     MBR *g2rect = group2->rectangle;
+
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
-        if(currNode->entries[i]->rectangle==NULL)
-        {
-            continue;
-        }
-        int minx=min(g1rect->pairX.minLimit,currNode->entries[i]->rectangle->pairX.minLimit);
-        int miny=min(g1rect->pairY.minLimit,currNode->entries[i]->rectangle->pairY.minLimit);
-        int maxx=max(g1rect->pairX.maxLimit,currNode->entries[i]->rectangle->pairX.maxLimit);
-        int maxy=max(g1rect->pairY.maxLimit,currNode->entries[i]->rectangle->pairY.maxLimit);
-        MBR* newRect1=createMBR(minx,maxx,miny,maxy);
-        int diff1 = findArea(newRect1)-findArea(g1rect);
+        // find the difference in area of the new rectangle formed by union of the entry and the group rectangle of group1
+        MBR *Rect1 = unionMBR(g1rect, currNode->entries[i]->rectangle);
+        int diff1 = findArea(Rect1) - findArea(g1rect);
+        free(Rect1);
 
-        minx=min(g2rect->pairX.minLimit,currNode->entries[i]->rectangle->pairX.minLimit);
-        miny=min(g2rect->pairY.minLimit,currNode->entries[i]->rectangle->pairY.minLimit);
-        maxx=max(g2rect->pairX.maxLimit,currNode->entries[i]->rectangle->pairX.maxLimit);
-        maxy=max(g2rect->pairY.maxLimit,currNode->entries[i]->rectangle->pairY.maxLimit);
-        MBR* newRect2=createMBR(minx,maxx,miny,maxy);
-        int diff2 = findArea(newRect2)-findArea(g2rect);
+        // find the difference in area of the new rectangle formed by union of the entry and the group rectangle of group2
+        MBR *Rect2 = unionMBR(g2rect, currNode->entries[i]->rectangle);
+        int diff2 = findArea(Rect2) - findArea(g2rect);
+        free(Rect2);
 
+        // find the difference between the two differences
         int diff = abs(diff1 - diff2);
+        // condition and tie breakers for assigning the entry to a group
         if (diff > maxDiff)
         {
             maxDiff = diff;
             maxIndex = i;
-            if(diff1<diff2)
-            {
-                *res=true;
-            }
-            else if(diff1>diff2)
-            {
-                *res=false;
-            }
-            else if(findArea(g1rect)<findArea(g2rect))
-            {
-                *res=true;
-            }
-            else if(findArea(g1rect)>findArea(g2rect))
-            {
-                *res=false;
-            }
-            else if(group1->childNode->noOfEntries<group2->childNode->noOfEntries)
-            {
-                *res=true;
-            }
+            if (diff1 < diff2)
+                *res = true;
+            else if (diff1 > diff2)
+                *res = false;
+            else if (findArea(g1rect) < findArea(g2rect))
+                *res = true;
+            else if (findArea(g1rect) > findArea(g2rect))
+                *res = false;
+            else if (group1->childNode->noOfEntries < group2->childNode->noOfEntries)
+                *res = true;
             else
-            {
-                *res=false;
-            }
+                *res = false;
         }
     }
 
@@ -142,162 +125,200 @@ int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
 void quadraticSplit(Node *currNode, rTree *tree)
 {
     blue("[Entering Split]\n");
-    int seed1,seed2;
-    pickSeeds(currNode,&seed1,&seed2);
-    Node *group1 = createNode(NULL,currNode,tree);
-    Node *group2 = createNode(NULL,currNode,tree);
-    if(currNode->isLeaf==true)
+
+    int seed1, seed2;
+
+    // pick two entries to be the first elements of the groups
+    pickSeeds(currNode, &seed1, &seed2);
+
+    // create two new nodes to be the groups
+    Node *group1 = createNode(NULL, currNode, tree);
+    Node *group2 = createNode(NULL, currNode, tree);
+
+    // if the current node is a leaf node, set the leaf flag of the groups
+    if (currNode->isLeaf == true)
     {
-        group1->isLeaf=true;
-        group2->isLeaf=true;
-        currNode->isLeaf=false;
+        group1->isLeaf = true;
+        group2->isLeaf = true;
+        currNode->isLeaf = false;
     }
+    // else set the leaf flag of the groups to false
     else
     {
-        group1->isLeaf=false;
-        group2->isLeaf=false;
+        group1->isLeaf = false;
+        group2->isLeaf = false;
     }
-    group1->noOfEntries=1;
-    group2->noOfEntries=1;
-    group1->entries[0]=currNode->entries[seed1];
-    group2->entries[0]=currNode->entries[seed2];
-    currNode->entries[seed2]=currNode->entries[currNode->noOfEntries-1];
-    currNode->noOfEntries--;
-    currNode->entries[seed1]=currNode->entries[currNode->noOfEntries-1];
+
+    // add the seeds to respective groups
+
+    group1->noOfEntries = 1;
+    group2->noOfEntries = 1;
+
+    group1->entries[0] = currNode->entries[seed1];
+    group2->entries[0] = currNode->entries[seed2];
+
+    // remove the seeds from the current node
+    currNode->entries[seed2] = currNode->entries[currNode->noOfEntries - 1];
     currNode->noOfEntries--;
 
-    while(currNode->noOfEntries>0)
+    currNode->entries[seed1] = currNode->entries[currNode->noOfEntries - 1];
+    currNode->noOfEntries--;
+
+    // while the current node is not empty
+    while (currNode->noOfEntries > 0)
     {
-        if(group1->noOfEntries==tree->maxChildren)
+        // if one of the groups has maxChildren entries, add all the remaining entries to the other group
+        if (group1->noOfEntries == tree->maxChildren)
         {
-            for(int i=0;i<currNode->noOfEntries;i++)
+            for (int i = 0; i < currNode->noOfEntries; i++)
             {
-                // printEntry(currNode->entries[i]);
-                group2->entries[group2->noOfEntries]=currNode->entries[i];
+                group2->entries[group2->noOfEntries] = currNode->entries[i];
                 group2->noOfEntries++;
             }
-            currNode->noOfEntries=0;
+
+            currNode->noOfEntries = 0;
             break;
         }
-        else if(group2->noOfEntries==tree->maxChildren)
+        else if (group2->noOfEntries == tree->maxChildren)
         {
-            for(int i=0;i<currNode->noOfEntries;i++)
+            for (int i = 0; i < currNode->noOfEntries; i++)
             {
-                // printEntry(currNode->entries[i]);
-                group1->entries[group1->noOfEntries]=currNode->entries[i];
+                group1->entries[group1->noOfEntries] = currNode->entries[i];
                 group1->noOfEntries++;
             }
-            currNode->noOfEntries=0;
+
+            currNode->noOfEntries = 0;
             break;
         }
         else
         {
-            bool res;
-            int index=pickNext(currNode,group1->entries[0],group2->entries[0],&res);
-            if(res)
+            // pick the next entry to be added to a group, and the group to which it should be added
+            bool group_flag;
+            int index = pickNext(currNode, group1->entries[0], group2->entries[0], &group_flag);
+
+            // add to group 1
+            if (group_flag)
             {
-                group1->entries[group1->noOfEntries]=currNode->entries[index];
+                group1->entries[group1->noOfEntries] = currNode->entries[index];
                 group1->noOfEntries++;
             }
+
+            // add to group 2
             else
             {
-                group2->entries[group2->noOfEntries]=currNode->entries[index];
+                group2->entries[group2->noOfEntries] = currNode->entries[index];
                 group2->noOfEntries++;
             }
-            // printf("{");
-            // // free(currNode->entries[currNode->noOfEntries-1]);
-            // printEntry(currNode->entries[index]);
-            // printf("}\n");
-            currNode->entries[index]=currNode->entries[currNode->noOfEntries-1];
+
+            // remove the entry from the current node
+            currNode->entries[index] = currNode->entries[currNode->noOfEntries - 1];
             currNode->noOfEntries--;
         }
     }
-    if(currNode->parent==NULL)
+
+    // if the current node is the root node, create a new root node and add the groups as its children
+    if (currNode->parent == NULL)
     {
-        currNode->noOfEntries=2;
-        currNode->entries[0]=createEntry(findMBR(group1),group1);
-        group1->parentEntry=currNode->entries[0];
-        currNode->entries[1]=createEntry(findMBR(group2),group2);
-        group2->parentEntry=currNode->entries[1];
-        group1->parent=currNode;
-        group2->parent=currNode;
-        tree->root=currNode;
-        currNode->isLeaf=false;
+        currNode->noOfEntries = 2;
+        currNode->entries[0] = createEntry(findMBR(group1), group1);
+
+        group1->parentEntry = currNode->entries[0];
+        currNode->entries[1] = createEntry(findMBR(group2), group2);
+
+        group2->parentEntry = currNode->entries[1];
+        group1->parent = currNode;
+        group2->parent = currNode;
+
+        tree->root = currNode;
+        currNode->isLeaf = false;
     }
+
+    // else add the groups as entries to the parent node and remove the current node.
     else
     {
-        // printEntry(currNode->parentEntry);
-        currNode->parentEntry->childNode=group1;
-        currNode->parentEntry->rectangle=findMBR(group1);
-        currNode->parent->entries[currNode->parent->noOfEntries]=createEntry(findMBR(group2),group2);
+        currNode->parentEntry->childNode = group1;
+        currNode->parentEntry->rectangle = findMBR(group1);
+
+        currNode->parent->entries[currNode->parent->noOfEntries] = createEntry(findMBR(group2), group2);
         currNode->parent->noOfEntries++;
-        group1->parent=currNode->parent;
-        group1->parentEntry=currNode->parentEntry;
-        group2->parentEntry=currNode->parent->entries[currNode->parent->noOfEntries-1];
-        group2->parent=currNode->parent;
+
+        group1->parent = currNode->parent;
+        group1->parentEntry = currNode->parentEntry;
+
+        group2->parentEntry = currNode->parent->entries[currNode->parent->noOfEntries - 1];
+        group2->parent = currNode->parent;
+
+        free(currNode);
     }
+
     blue("[Exiting Split]\n");
 }
 
+// function to adjust the tree after insertion
 void adjustTree(Node *currNode, rTree *tree)
 {
     blue("[Entering Adjust]\n");
+
     if (currNode == NULL)
     {
         return;
     }
+
+    // if the current node is the root node, set it as the root of the tree and return
     if (currNode->parent == NULL)
     {
         tree->root = currNode;
         return;
     }
+
+    // else adjust the MBR of the parent node and check if it needs to be split
     Node *parent = currNode->parent;
-    for (int i = 0; i < parent->noOfEntries; i++)
-    {
-        if (parent->entries[i]->childNode == currNode)
-        {
-            parent->entries[i]->rectangle = findMBR(currNode);
-            break;
-        }
-    }
+
+    // update the MBR of the parent node
+    MBR *newVal = findMBR(currNode);
+    if (newVal)
+        currNode->parentEntry->rectangle = newVal;
+
+    // if the parent node needs to be split, split it and adjust the tree
     if (parent->noOfEntries >= tree->maxChildren)
     {
         quadraticSplit(parent, tree);
         adjustTree(parent->parent, tree);
     }
+
+    // else adjust the tree
     else
     {
         adjustTree(parent, tree);
     }
+
     blue("[Exiting Adjust]\n");
 }
 
-
+// insert a rectangle into the tree
 void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
 {
     blue("[Entering Insert]\n");
-    if(minX>maxX)
-    {
-        swap(&minX,&maxX);
-    }
-    if(minY>maxY)
-    {
-        swap(&minY,&maxY);
-    }
+
+    // create a rectangle and an entry for the rectangle
     MBR *rect = createMBR(minX, maxX, minY, maxY);
-    Node *currNode = chooseLeaf(tree->root, rect);
     Entry *entry = createEntry(rect, NULL);
 
+    // choose the leaf node to which the entry should be added
+    Node *currNode = chooseLeaf(tree->root, rect);
+
+    // add the entry to the leaf node
     currNode->entries[currNode->noOfEntries] = entry;
     currNode->noOfEntries++;
+
+    // if the leaf node needs to be split, split it
     if (currNode->noOfEntries > tree->maxChildren)
     {
         quadraticSplit(currNode, tree);
-        adjustTree(currNode, tree);
     }
-    else
-    {
-        adjustTree(currNode, tree);
-    }
+
+    // adjust the tree for changes in the MBRs of the parent nodes
+    adjustTree(currNode, tree);
+
     blue("[Exiting Insert]\n");
 }
