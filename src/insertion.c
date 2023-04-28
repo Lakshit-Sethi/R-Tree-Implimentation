@@ -303,7 +303,7 @@ void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
     // create a rectangle and an entry for the rectangle
     MBR *rect = createMBR(minX, maxX, minY, maxY);
     Entry *entry = createEntry(rect, NULL);
-
+    
     // choose the leaf node to which the entry should be added
     Node *currNode = chooseLeaf(tree->root, rect);
 

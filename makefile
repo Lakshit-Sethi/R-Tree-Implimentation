@@ -1,17 +1,18 @@
 runRtree: driver.o search.o insertion.o utils.o traversal.o rTrees.o
 	gcc -o runRtree driver.o search.o insertion.o utils.o traversal.o rTrees.o
+	rm *.o
 	./runRtree
-driver.o: driver.c rTrees.h
-	gcc -c driver.c
-search.o: search.c utils.h rTrees.h
-	gcc -c search.c
-insertion.o: insertion.c utils.h rTrees.h
-	gcc -c insertion.c
-traversal.o: traversal.c utils.h rTrees.h
-	gcc -c traversal.c
-utils.o: utils.c utils.h rTrees.h
-	gcc -c utils.c
-rTrees.o: rTrees.c rTrees.h utils.h
-	gcc -c rTrees.c
-clear:
+driver.o: src/driver.c src/rTrees.h
+	gcc -c src/driver.c
+search.o: src/search.c src/utils.h src/rTrees.h
+	gcc -c src/search.c
+insertion.o: src/insertion.c src/utils.h src/rTrees.h
+	gcc -c src/insertion.c
+traversal.o: src/traversal.c src/utils.h src/rTrees.h
+	gcc -c src/traversal.c
+utils.o: src/utils.c src/utils.h src/rTrees.h
+	gcc -c src/utils.c
+rTrees.o: src/rTrees.c src/rTrees.h src/utils.h
+	gcc -c src/rTrees.c
+clear_:
 	rm *.o
