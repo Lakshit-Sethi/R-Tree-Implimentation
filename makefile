@@ -14,4 +14,4 @@ utils.o: utils.c utils.h rTrees.h
 rTrees.o: rTrees.c rTrees.h utils.h
 	gcc -c rTrees.c
 clear:
-	rm *.out
+	rm *.o
