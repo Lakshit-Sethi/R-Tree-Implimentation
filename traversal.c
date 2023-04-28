@@ -9,14 +9,14 @@ void traverse(Node *currNode)
     {
         return;
     }
-    printf("Entering Node %d\n", currNode->index);
+    yellow("Entering Node %d\n", currNode->index);
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
-        printf("\tEntry %d\n", i);
+        green("\tEntry %d\n", i);
         printEntry(currNode->entries[i]);
         traverse(currNode->entries[i]->childNode);
     }
-    printf("Exiting Node %d\n", currNode->index);
+    yellow("Exiting Node %d\n", currNode->index);
     return;
 }
 

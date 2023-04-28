@@ -17,8 +17,8 @@ void printEntry(Entry *Entry)
     {
         return;
     }
-    printf("\t\tTop Right -> %d,%d\n", MBR->pairX.maxLimit, MBR->pairY.maxLimit);
-    printf("\t\tBottom Left -> %d,%d\n", MBR->pairX.minLimit, MBR->pairY.minLimit);
+    green("\t\tTop Right -> %d,%d\n", MBR->pairX.maxLimit, MBR->pairY.maxLimit);
+    green("\t\tBottom Left -> %d,%d\n", MBR->pairX.minLimit, MBR->pairY.minLimit);
     return;
 }
 

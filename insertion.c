@@ -6,6 +6,7 @@
 // choose the most optimal leaf node to insert the new rectangle
 Node *chooseLeaf(Node *currNode, MBR *newrectangle)
 {
+    blue("[Choosing leaf node]\n");
     if (currNode->isLeaf)
     {
         return currNode;
@@ -38,13 +39,14 @@ Node *chooseLeaf(Node *currNode, MBR *newrectangle)
             minIndex=i;
         }
     }
+    blue("[Exiting chooseLeaf]\n")
     return chooseLeaf(currNode->entries[minIndex]->childNode, newrectangle);
 }
 
 // pick group representative for splitting current node
 void pickSeeds(Node *currNode, int *seed1, int *seed2)
 {
-    printf("[Picking seeds]\n");
+    blue("[Picking seeds]\n");
     int maxDiff = 0;
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
@@ -67,14 +69,14 @@ void pickSeeds(Node *currNode, int *seed1, int *seed2)
             }
         }
     }
-    printf("[Exiting pickSeeds]\n");
+    blue("[Exiting pickSeeds]\n");
     return;
 }
 
 // decide which entry to choose next, and which group to put it in
 int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
 {
-    printf("[Entering pickNext]\n");
+    blue("[Entering pickNext]\n");
     
     int maxDiff = 0;
     int maxIndex = 0;
@@ -132,14 +134,14 @@ int pickNext(Node *currNode, Entry *group1,Entry *group2,bool* res)
         }
     }
 
-    printf("[Exiting pickNext]\n");
+    blue("[Exiting pickNext]\n");
     return maxIndex;
 }
 
 // split the node into two groups
 void quadraticSplit(Node *currNode, rTree *tree)
 {
-    printf("[Entering Split]\n");
+    blue("[Entering Split]\n");
     int seed1,seed2;
     pickSeeds(currNode,&seed1,&seed2);
     Node *group1 = createNode(NULL,currNode,tree);
@@ -170,7 +172,7 @@ void quadraticSplit(Node *currNode, rTree *tree)
         {
             for(int i=0;i<currNode->noOfEntries;i++)
             {
-                printEntry(currNode->entries[i]);
+                // printEntry(currNode->entries[i]);
                 group2->entries[group2->noOfEntries]=currNode->entries[i];
                 group2->noOfEntries++;
             }
@@ -181,7 +183,7 @@ void quadraticSplit(Node *currNode, rTree *tree)
         {
             for(int i=0;i<currNode->noOfEntries;i++)
             {
-                printEntry(currNode->entries[i]);
+                // printEntry(currNode->entries[i]);
                 group1->entries[group1->noOfEntries]=currNode->entries[i];
                 group1->noOfEntries++;
             }
@@ -202,10 +204,10 @@ void quadraticSplit(Node *currNode, rTree *tree)
                 group2->entries[group2->noOfEntries]=currNode->entries[index];
                 group2->noOfEntries++;
             }
-            printf("{");
-            // free(currNode->entries[currNode->noOfEntries-1]);
-            printEntry(currNode->entries[index]);
-            printf("}\n");
+            // printf("{");
+            // // free(currNode->entries[currNode->noOfEntries-1]);
+            // printEntry(currNode->entries[index]);
+            // printf("}\n");
             currNode->entries[index]=currNode->entries[currNode->noOfEntries-1];
             currNode->noOfEntries--;
         }
@@ -224,7 +226,7 @@ void quadraticSplit(Node *currNode, rTree *tree)
     }
     else
     {
-        printEntry(currNode->parentEntry);
+        // printEntry(currNode->parentEntry);
         currNode->parentEntry->childNode=group1;
         currNode->parentEntry->rectangle=findMBR(group1);
         currNode->parent->entries[currNode->parent->noOfEntries]=createEntry(findMBR(group2),group2);
@@ -234,12 +236,12 @@ void quadraticSplit(Node *currNode, rTree *tree)
         group2->parentEntry=currNode->parent->entries[currNode->parent->noOfEntries-1];
         group2->parent=currNode->parent;
     }
-    printf("[Exiting Split]\n");
+    blue("[Exiting Split]\n");
 }
 
 void adjustTree(Node *currNode, rTree *tree)
 {
-    printf("[Entering Adjust]\n");
+    blue("[Entering Adjust]\n");
     if (currNode == NULL)
     {
         return;
@@ -267,13 +269,13 @@ void adjustTree(Node *currNode, rTree *tree)
     {
         adjustTree(parent, tree);
     }
-    printf("[Exiting Adjust]\n");
+    blue("[Exiting Adjust]\n");
 }
 
 
 void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
 {
-    printf("[Entering Insert]\n");
+    blue("[Entering Insert]\n");
     if(minX>maxX)
     {
         swap(&minX,&maxX);
@@ -297,5 +299,5 @@ void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
     {
         adjustTree(currNode, tree);
     }
-    printf("[Exiting Insert]\n");
+    blue("[Exiting Insert]\n");
 }

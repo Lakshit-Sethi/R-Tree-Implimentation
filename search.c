@@ -13,7 +13,7 @@ void search_utility(Node *currNode, MBR *search_rect)
         {
             if (isOverlapping(currNode->entries[i]->rectangle, search_rect))
             {
-                printf("\t! ");
+                green("!");
                 printEntry(currNode->entries[i]);
             }
         }
@@ -33,6 +33,7 @@ void search_utility(Node *currNode, MBR *search_rect)
 // wrapper function for search_utility
 void search(rTree *tree, int minX, int maxX, int minY, int maxY)
 {
+    blue("[Entering Search]\n")
     if(minX>maxX)
     {
         swap(&minX,&maxX);
@@ -43,4 +44,5 @@ void search(rTree *tree, int minX, int maxX, int minY, int maxY)
     }
     MBR *search_rect = createMBR(minX, maxX, minY, maxY);
     search_utility(tree->root, search_rect);
+    blue("[Exiting Search]\n")
 }
