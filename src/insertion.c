@@ -168,7 +168,7 @@ void quadraticSplit(Node *currNode, rTree *tree)
     while (currNode->noOfEntries > 0)
     {
         // if one of the groups has maxChildren entries, add all the remaining entries to the other group
-        if (group1->noOfEntries == tree->maxChildren)
+        if (group2->noOfEntries+currNode->noOfEntries == tree->minChildren)
         {
             for (int i = 0; i < currNode->noOfEntries; i++)
             {
@@ -179,7 +179,7 @@ void quadraticSplit(Node *currNode, rTree *tree)
             currNode->noOfEntries = 0;
             break;
         }
-        else if (group2->noOfEntries == tree->maxChildren)
+        else if (group1->noOfEntries+currNode->noOfEntries == tree->minChildren)
         {
             for (int i = 0; i < currNode->noOfEntries; i++)
             {
@@ -303,7 +303,7 @@ void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
     // create a rectangle and an entry for the rectangle
     MBR *rect = createMBR(minX, maxX, minY, maxY);
     Entry *entry = createEntry(rect, NULL);
-    
+
     // choose the leaf node to which the entry should be added
     Node *currNode = chooseLeaf(tree->root, rect);
 
