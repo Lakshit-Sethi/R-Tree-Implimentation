@@ -14,9 +14,12 @@ void traverse(Node *currNode)
     {
         green("\tEntry %d\n", i);
         printEntry(currNode->entries[i]);
-        traverse(currNode->entries[i]->childNode);
     }
     yellow("Exiting Node %d\n", currNode->index);
+    for (int i = 0; i < currNode->noOfEntries; i++)
+    {
+        traverse(currNode->entries[i]->childNode);
+    }
     return;
 }
 
