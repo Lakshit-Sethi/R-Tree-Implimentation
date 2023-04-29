@@ -1,6 +1,6 @@
 all : compile run
 
-run: exec
+run:
 	./exec
 
 compile: driver.o search.o insertion.o utils.o traversal.o rTrees.o

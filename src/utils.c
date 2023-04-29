@@ -125,3 +125,16 @@ MBR *unionMBR(MBR *rect1, MBR *rect2)
     
     return createMBR(minx, maxx, miny, maxy);
 }
+
+void insertPolygon(rTree* tree,polygon pts,int n)
+{
+    int minx=pts[0].x,maxx=pts[0].x,miny=pts[0].y,maxy=pts[0].y;
+    for(int i=1;i<n;i++)
+    {
+        minx=min(minx,pts[i].x);
+        maxx=max(maxx,pts[i].x);
+        miny=min(miny,pts[i].y);
+        maxy=max(maxy,pts[i].y);
+    }
+    insert(tree,minx,maxx,miny,maxy);
+}

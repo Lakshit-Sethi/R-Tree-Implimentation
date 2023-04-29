@@ -44,6 +44,14 @@ struct rTree
     Node *root;
 };
 
+typedef struct point point;
+typedef struct point* polygon;
+struct point
+{
+    int x;
+    int y;
+};
+
 MBR *createMBR(int minX, int maxX, int minY, int maxY);
 Node *createNode(Entry *parentEntry,Node* parentNode, rTree *tree);
 Entry *createEntry(MBR *rectangle, Node *child);
@@ -51,5 +59,5 @@ rTree *createRtree(int minchild, int maxchild);
 void preOrderTraversal(rTree *tree);
 void search(rTree *tree, int minX, int maxX, int minY, int maxY);
 void insert(rTree *tree, int minX, int maxX, int minY, int maxY);
-
+void insertPolygon(rTree *tree, point *pts, int n);
 #endif
