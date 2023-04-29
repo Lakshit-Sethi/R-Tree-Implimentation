@@ -6,34 +6,28 @@
 \usepackage[export]{adjustbox}
 \usepackage{amsmath,amssymb}
 \usepackage{hyperref}
+\usepackage{listings}
 \DeclareRobustCommand{\bbone}{\text{\usefont{U}{bbold}{m}{n}1}}
 
 \DeclareMathOperator{\EX}{\mathbb{E}}% expected value
 %------------------------------------------------------------
 %This block of code defines the information to appear in the
 %Title page
-\title[GANs] %optional
-{GAN: Generative Adversial Network}
+\title[R-Tree] %optional
+{R-Tree}
 
 
-\author[Saurabh R. Bhandari] % (optional)
-{Saurabh R. Bhandari}
+\author[] % (optional)
+{Dhyey Italiya - 2021A7PS1463P\\Saurabh Bhandari - 2021A7PS2412P\\ Saksham Verma - 2021A7PS2414P\\Lakshit Sethi - 2021A7PS2434P\\Abir Abhyankar - 2021A7PS0523P}
 
 \institute[BITS Pilani] % (optional)
 {
   Birla Institute of Technology and Science,Pilani\\
-  f20212412@pilani.bits-pilani.ac.in\\
-  https://github.com/SaurabhRBhandari\\
 }
-
-\date[October 9,2022] % (optional)
-{October 9,2022}
-
 
 %End of title page configuration block
 %------------------------------------------------------------
 
-i
 
 %------------------------------------------------------------
 %The next block of commands puts the table of contents at the 
@@ -64,96 +58,164 @@ i
 \end{frame}
 %---------------------------------------------------------
 
-\section{Background}
+\section{Introduction}
 \begin{frame}
-\frametitle{Unsupervsed Learning?}
+\frametitle{R-Tree Structure}
 \begin{itemize}
-    \item Use of ML algorithms to cluster unlabeled data.
-    \item No need for any human intervention.
-    \item Ideal for exploratory data analysis, image recognition, etc.
+    \item M - Maximum number of Entries in each Node.
+    \item m - Minimum number of Entries in each Node.
+    \item MBR - Minimum Bounding Rectangle.It contains two pairs of integers which defines the bounds along X-axis and Y-axis
+    \item Node - It contains an array of Entries whose size is bounded by the values of M and m.It also stores a pointer to its Parent Node and parent Entry.
+    \item Entry - It contains an MBR and a pointer to its child node.\bigskip
+    
+    Each node has a boolean isLeaf which checks whether it is a leaf node or not.
 \end{itemize}
 \end{frame}
-\begin{frame}
-\frametitle{Why GANs?}
-\begin{block}{Definition}
-Generative Adversarial Networks belong to the set of generative models. It means that they are able to produce / to generate  new content.
-\end{block}
-\begin{alertblock}{Applications}
-\begin{itemize}
-    \item Generate Realistic Photographs
-    \item Video Prediction
-    \item 3D Object Generation
-\end{itemize}
-\end{alertblock}
-\includegraphics[scale=0.30,center]{Example-of-GAN-Generated-Photographs-of-Bedrooms.png}
-\end{frame}
-\begin{frame}
-\frametitle{Generating Random Variables}
-\begin{block}{Inverse Transform Method}
-The idea of the inverse transform method is simply to represent our complex random variable as the result of a function applied to a uniform random variable we know how to generate.
-\end{block}
-Consider a one dimensional example. Let $X $\sim$ f_X(x)$ and $F_X(x)$ denote it's CDF. We want to generate X which are distributed according to this distribution.
-\begin{itemize}
-    \item Generate $u$ such that \begin{math} U $\sim$ Unif[0,1] \end{math}.
-    \item Find the inverse of desired CDF, $F^{-1}_X(x)$.
-    \item Compute $X=F^{-1}_X(U)$.
-\end{itemize}
-\begin{alertblock}{Note}
- Inverse transform method is a way to generate a random variable that follows a given distribution by making a uniform random variable goes through a well designed “transform function” (inverse CDF).
-\end{alertblock}
-\end{frame}
-\section{Method}
-\begin{frame}{Intution}
-We are to generate images of cats of size nxn. This data can be represented as a N=nxn dimensional vector. Call this vector X. Now, X has to be sampled from a very specific probability distribution. 
-\begin{block}{Eureka!}
-    Use Neural Network to model the inverse of this cdf.
-\end{block}
-\includegraphics[scale=0.35,center]{1_CkMMefLPqcEKPuuPLZY2_A.png}
-\end{frame}
-\begin{frame}{Training}
-    We now need to optimize the neural network to express the right transform function. 
-    The approach GANs take is in the form of a downstream task of discrimination between true and generated samples.
-    \begin{block}{Discriminator}
-        The goal of the discriminator is to detect fake generated data, so the discriminative neural network is trained to minimise the final classification error
+\begin{frame}{R-Tree Structure}
+    \begin{block}{MBR}
+    Minimum Bounding Rectangle.It contains two pairs of integers which defines the bounds along X-axis and Y-axis
+         \includegraphics[scale=0.25,center]{MBR_struct.png}
     \end{block}
-    \begin{block}{Generator}
-        The goal of the generator is to fool the discriminator, so the generative neural network is trained to maximise the final classification error (between true and generated data).
+    \begin{block}{Node}
+    It contains an array of Entries whose size is bounded by the values of M and m.It also stores a pointer to its Parent Node and parent Entry.
+         \includegraphics[scale=0.25,center]{Node_struct.png}
     \end{block}
-    \begin{alertblock}{Objective}
-        $
-        \min_G \max_D V(D,G) = \EX_{x \sim p_{data}(x)} \log D(x^{(i)}) +  \EX_{z \sim p_{z}(z)} \log (1-D(G(z^{(i)})))
-        $
-    \end{alertblock}
 \end{frame}
-\begin{frame}{Algorithm}
-For no. of iterations do:\\
-\hspace{1cm}For k steps do:\\
-\hspace{2cm}Sample minibatch of \(m\) noise samples from \(p_g(z)\).\\
-\hspace{2cm}Sample minibatch of \(m\) examples from \(p_{data}(x)\).\\
-\hspace{2cm}Update the discriminator by stochastic gradient ascend\\
-\hspace{3cm}$
-\nabla_{\theta_d}\frac{1}{m}\sum_{i=1}^{m}[ \log D(x^{(i)}) + \log (1-D(G(z^{(i)}))) ].
-$\\
-\hspace{1cm}Sample minibatch of \(m\) noise samples from \(p_g(z)\).\\
-\hspace{1cm}Update the generator by stochastic gradient descend\\
-\hspace{3cm}$\nabla_{\theta_g}\frac{1}{m}\sum_{i=1}^{m}[ \log (1-D(G(z^{(i)}))) ].$\\
-\hspace{1cm}
+
 \end{frame}
-\section{Applications}
-\begin{frame}{Vector Arithmetics}
-\includegraphics[scale=0.55,center]{Example-of-Vector-Arithmetic-for-GAN-Generated-Faces.png}
+\begin{frame}{R-Tree Structure}
+    \begin{block}{Entry}
+    It contains an MBR and a pointer to its child node.
+         \includegraphics[scale=0.25,center]{Entry_struct.png}
+    \end{block}
+    \begin{block}{R-tree}
+         \includegraphics[scale=0.25,center]{rTree_struct.png}
+    \end{block}
 \end{frame}
-\begin{frame}{Text to Image Translation-Stack GAN}
-\includegraphics[scale=0.55,center]{Example-of-Textual-Descriptions-and-GAN-Generated-Photographs-of-Birds.png}
+%------------------------------------------------------------------------
+\section{Functions}
+\begin{frame}{Functions}
+\begin{itemize}
+    \item Traversal - We have implemented Preorder Traversal which first prints the node and then its children from left to right.
+    \bigskip
+    \item Search - It searches for leaf MBRs that overlaps with a given MBR.
+    \bigskip
+    \item Insert - Insert a given MBR into the tree.
+    \bigskip
+\end{itemize}
 \end{frame}
-\begin{frame}{Video Prediction-Future GAN}
-\includegraphics[scale=0.55,center]{Example-of-Video-Frames-Generated-with-a-GAN.png}
+\begin{frame}{Traversal}
+    The function preOrderTraversal uses an auxilliary function named traverse.
+    \begin{block}{traverse}
+       \includegraphics[scale=0.25,center]{traverse_function.png}
+    \end{block}
+        
+    \begin{block}{PreOrder Traversal}
+        \includegraphics[scale=0.25,center]{preOrderTraversal_func.png}
+    \end{block}
 \end{frame}
-\begin{frame}{Style GAN-NVidia}
-\includegraphics[scale=1,center]{images.jpeg}
-\centerline{\href{https://thispersondoesnotexist.com/}{Click Here }}
+%-------------------------
+\begin{frame}{Search}
+    The function search uses an auxilliary function search utility.
+    \begin{block}{search utility}
+       \includegraphics[scale=0.25,center]{search_util_func.png}
+    \end{block}
 \end{frame}
-\begin{frame}{}
-\centerline{Thank You!}
+%--------------------------
+\begin{frame}{Search}
+\begin{block}{search}
+       \includegraphics[scale=0.30,center]{search_func.png}
+    \end{block}
 \end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{chooseLeaf}}
+    \begin{block}{chooseLeaf}
+       \includegraphics[scale=0.35,center]{chooseLeaf1_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{chooseLeaf}}
+    \begin{block}{chooseLeaf contd.}
+       \includegraphics[scale=0.35,center]{chooseLeaf2_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{pickSeeds}}
+    \begin{block}{pickSeeds}
+       \includegraphics[scale=0.40,center]{pickSeeds1_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{pickSeeds}}
+    \begin{block}{pickSeeds contd.}
+       \includegraphics[scale=0.35,center]{pickSeeds2_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{pickNext}}
+int pickNext(Node *currNode, Entry *group1, Entry *group2, bool *res)
+    \begin{block}{pickNext}
+       \includegraphics[scale=0.25,center]{pickNext_funcfor.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{QuadraticSplit}}
+void quadraticSplit(Node *currNode, rTree *tree)
+    \begin{block}{QuadraticSplit}
+       \includegraphics[scale=0.30,center]{QuadSplit1_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{QuadraticSplit}}
+Iterating through all the entries of given node with a while loop as:\\
+while (currNode --$>$ noOfEntries $>$ 0)\\
+Picking the next entry to be added to a group, and the group to which it should be added.
+    \begin{block}{QuadraticSplit contd.}
+       \includegraphics[scale=0.30,center]{QuadSplit2_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{QuadraticSplit}}
+Handling the case where one of the groups has maxChildren entries,we add all the remaining entries to the other group.
+    \begin{block}{QuadraticSplit contd.}
+       \includegraphics[scale=0.35,center]{QuadSplit3_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{QuadraticSplit}}
+If the current node is the root node, create a new root node and add the groups as its children.
+    \begin{block}{QuadraticSplit contd.}
+       \includegraphics[scale=0.35,center]{QuadSplit4_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{QuadraticSplit}}
+Else add the groups as entries to the parent node and remove the current node.
+    \begin{block}{QuadraticSplit contd.}
+       \includegraphics[scale=0.35,center]{QuadSplit5_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{adjustTree}}
+Adjusts the tree after insertion
+    \begin{block}{adjustTree}
+       \includegraphics[scale=0.40,center]{adjTree1_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion_{adjustTree}}
+Adjust the MBR of the parent node and check if it needs to be split and update the MBR of the parent node.\\
+\bigskip
+If the parent node needs to be split, split it and adjust the tree again.
+    \begin{block}{adjustTree contd.}
+       \includegraphics[scale=0.30,center]{adjTree2_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
+\begin{frame}{Insertion}
+    \begin{block}{insert}
+       \includegraphics[scale=0.35,center]{insert_func.png}
+    \end{block}
+\end{frame}
+%-----------------------------
 \end{document}
