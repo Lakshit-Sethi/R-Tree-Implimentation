@@ -42,6 +42,7 @@ struct rTree
     int minChildren; // m
     Entry *start;    // contains a pointer to root of the tree.
     Node *root;
+    int no_of_nodes; // for illustration purpose
 };
 
 typedef struct point point;
@@ -60,4 +61,5 @@ void preOrderTraversal(rTree *tree);
 void search(rTree *tree, int minX, int maxX, int minY, int maxY);
 void insert(rTree *tree, int minX, int maxX, int minY, int maxY);
 void insertPolygon(rTree *tree, point *pts, int n);
+void insertPoint(rTree *tree, point pt);
 #endif

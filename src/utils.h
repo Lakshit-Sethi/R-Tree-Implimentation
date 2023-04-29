@@ -19,5 +19,6 @@ MBR* findMBR(Node* currNode);
 bool isOverlapping(MBR *rect1, MBR *rect2);
 MBR* unionMBR(MBR *rect1, MBR *rect2);
 void insertPolygon(rTree* tree,point* pts,int n);
+void insertPoint(rTree* tree,point pt);
 #endif
 

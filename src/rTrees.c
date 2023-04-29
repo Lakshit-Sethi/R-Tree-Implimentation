@@ -16,14 +16,13 @@ MBR *createMBR(int minX, int maxX, int minY, int maxY)
 // Creates new node
 Node *createNode(Entry *parentEntry, Node *parent, rTree *tree)
 {
-    static int uid = 0;
     Node *node = (Node *)malloc(sizeof(Node));
     node->noOfEntries = 0;
     node->isLeaf = 0;
     node->parentEntry = parentEntry;
     node->parent = parent;
     node->entries = (Entry **)malloc((tree->maxChildren+1) * (sizeof(Entry *)));
-    node->index = uid++;
+    node->index = tree->no_of_nodes++;
     return node;
 }
 
@@ -44,6 +43,7 @@ rTree *createRtree(int minchild, int maxchild)
     tree->maxChildren = maxchild;
     tree->start = (Entry *)malloc(sizeof(Entry));
     tree->start->rectangle = NULL;
+    tree->no_of_nodes = 0;
     tree->root = createNode(tree->start,NULL, tree);
     tree->root->isLeaf = 1;
     return tree;

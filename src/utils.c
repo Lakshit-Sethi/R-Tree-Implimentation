@@ -20,7 +20,7 @@ void printEntry(Entry *Entry)
     }
 
     green("\t\tTop Right -> %d,%d\n", MBR->pairX.maxLimit, MBR->pairY.maxLimit);
-    green("\t\tBottom Left -> %d,%d\n", MBR->pairX.minLimit, MBR->pairY.minLimit);
+    green("\t\tBottom Left -> %d,%d\n\n", MBR->pairX.minLimit, MBR->pairY.minLimit);
 
     return;
 }
@@ -137,4 +137,9 @@ void insertPolygon(rTree* tree,polygon pts,int n)
         maxy=max(maxy,pts[i].y);
     }
     insert(tree,minx,maxx,miny,maxy);
+}
+
+void insertPoint(rTree* tree, point p)
+{
+    insert(tree,p.x,p.x,p.y,p.y);
 }

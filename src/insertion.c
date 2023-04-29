@@ -45,10 +45,8 @@ Node *chooseLeaf(Node *currNode, MBR *targetRect)
 void pickSeeds(Node *currNode, int *seed1, int *seed2)
 {
     blue("[Picking seeds]\n");
-
     // store the max difference of two rectangles
-    int maxDiff = 0;
-
+    int maxDiff = -1;
     for (int i = 0; i < currNode->noOfEntries; i++)
     {
         for (int j = i + 1; j < currNode->noOfEntries; j++)
@@ -56,7 +54,7 @@ void pickSeeds(Node *currNode, int *seed1, int *seed2)
             MBR *unionRect = unionMBR(currNode->entries[i]->rectangle, currNode->entries[j]->rectangle);
 
             // find the difference in area of the union rectangle and the sum of the areas of the two rectangles
-            int diff = findArea(unionRect) - findArea(currNode->entries[i]->rectangle) - findArea(currNode->entries[j]->rectangle);
+            int diff = abs(findArea(unionRect) - findArea(currNode->entries[i]->rectangle) - findArea(currNode->entries[j]->rectangle));
             free(unionRect);
 
             // if the difference is greater than the maximum difference, update the maximum difference and the seeds
@@ -130,7 +128,7 @@ void quadraticSplit(Node *currNode, rTree *tree)
 
     // pick two entries to be the first elements of the groups
     pickSeeds(currNode, &seed1, &seed2);
-
+    // printf("%d,%d\n",seed1,seed2);
     // create two new nodes to be the groups
     Node *group1 = createNode(NULL, currNode, tree);
     Node *group2 = createNode(NULL, currNode, tree);
