@@ -54,9 +54,14 @@ void pickSeeds(Node *currNode, int *seed1, int *seed2)
             MBR *unionRect = unionMBR(currNode->entries[i]->rectangle, currNode->entries[j]->rectangle);
 
             // find the difference in area of the union rectangle and the sum of the areas of the two rectangles
-            int diff = abs(findArea(unionRect) - findArea(currNode->entries[i]->rectangle) - findArea(currNode->entries[j]->rectangle));
+            int diff = findArea(unionRect) - findArea(currNode->entries[i]->rectangle) - findArea(currNode->entries[j]->rectangle);
             free(unionRect);
-
+            if(i==0 && j==1)
+            {
+                maxDiff = diff;
+                *seed1 = i;
+                *seed2 = j;
+            }
             // if the difference is greater than the maximum difference, update the maximum difference and the seeds
             if (diff > maxDiff)
             {
