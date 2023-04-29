@@ -8,8 +8,8 @@
 #define yellow(x...) {printf("\033[1;33m");printf(x);printf("\033[0m");}
 #define red(x...) {printf("\033[1;31m");printf(x);printf("\033[0m");}
 #define green(x...) {printf("\033[1;32m");printf(x);printf("\033[0m");}
-#define blue(x...) {printf("\033[1;34m");printf(x);printf("\033[0m");}
-// #define blue(x...)
+// #define blue(x...) {printf("\033[1;34m");printf(x);printf("\033[0m");}
+#define blue(x...)
 
 void swap(int *a,int *b);
 void printNode(Node *node);
