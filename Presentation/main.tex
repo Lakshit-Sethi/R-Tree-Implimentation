@@ -117,14 +117,28 @@
 %-------------------------
 \begin{frame}{Search}
     The function search uses an auxilliary function search utility.
+    
+    The search utility function takes the current node and a MBR as input.
     \begin{block}{search utility}
-       \includegraphics[scale=0.25,center]{search_util_func.png}
+       \begin{itemize}
+           \item If the Current Node is NULL,it returns the function.
+           \item If the Current Node is a leaf,the function searches all the entries in the node and prints the entries which overlap.
+           \item If the Current Node is not a leaf,It searches all the enteries and call the search utility function for the child node of all the enteries which overlap.
+       \end{itemize}
     \end{block}
 \end{frame}
 %--------------------------
 \begin{frame}{Search}
-\begin{block}{search}
-       \includegraphics[scale=0.30,center]{search_func.png}
+       This is a wrapper function which the user uses in order to search an R-Tree.
+
+       The search function takes the R-Tree and the values of the MBR as input.
+       \begin{block}{search}
+       \begin{itemize}
+           \item The function creates a MBR using the values provided.
+           \item The function then calls the search utility function giving the tree's root as the current node and the MBR created as input.
+       \end{itemize}
+
+       
     \end{block}
 \end{frame}
 %-----------------------------
