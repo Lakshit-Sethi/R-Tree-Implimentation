@@ -113,14 +113,69 @@
     \bigskip
 \end{itemize}
 \end{frame}
+%-------------------------
 \begin{frame}{Traversal}
-    The function preOrderTraversal uses an auxilliary function named traverse.
-    \begin{block}{traverse}
-       \includegraphics[scale=0.25,center]{traverse_function.png}
-    \end{block}
+    \begin{itemize}
+        \item The function preOrderTraversal is used to traverse an R-Tree in Pre-Order.
+    
+        \bigskip
+        \item The function preOrderTraversal uses an auxiliary function named preOrderTraversal\_Utility.
         
+        \bigskip 
+        \item preOrderTraversal\_Utility in turn uses the printNode function.
+        
+        \bigskip
+        \item printNode traverses through the node and prints each entry stored in it with the help of the printEntry function.
+    \end{itemize}
+\end{frame}
+%-------------------------
+\begin{frame}{Traversal_{preOrderTraversal}}
+    This function uses an auxiliary function named preOrderTraversal\_Utility.
+    
+    The preOrderTraversal function takes the R-Tree and starts traversing it in Pre-Order.
+    
+    It passes the root of the R-Tree to the preOrderTraversal\_Utility function for traversal.
+    
     \begin{block}{PreOrder Traversal}
         \includegraphics[scale=0.25,center]{preOrderTraversal_func.png}
+    \end{block}
+\end{frame}
+%-------------------------
+\begin{frame}{Traversal_{preOrderTraversal\_Utility}}
+    This function uses an auxiliary function named printNode.
+    
+    The preOrderTraversal\_Utility function takes a Node and prints it using the printNode function.
+    
+    It passes the current node to the printNode function.
+    
+    It traverses through the children of the current node from left to right and recursively calls itself on the children for Pre-Order traversal.
+    
+    \begin{block}{PreOrderTraversal\_Utility}
+        \includegraphics[scale=0.25,center]{preOrderTraversalUtility_func.png}
+    \end{block}
+\end{frame}
+%-------------------------
+\begin{frame}{Traversal_{printNode}}
+    This function uses an auxiliary function named printEntry.
+    
+    The printNode function takes a node and prints all the entries in the node.
+    
+    The function also prints the Node Number of the Child Nodes of the entries contained in it.
+    
+    It passes the entries of the node one-by-one to the printEntry function for printing the MBR of the entry.
+    
+    \begin{block}{PrintNode}
+        \includegraphics[scale=0.25,center]{printNode_func.png}
+    \end{block}
+\end{frame}
+%-------------------------
+\begin{frame}{Traversal_{printEntry}}
+    The printEntry function takes an entry and prints the Top-Right and Bottom-Left points of the MBR stored in the entry.
+    
+    The function does not print anything if the MBR of the entry is NULL.
+    
+    \begin{block}{PrintEntry}
+        \includegraphics[scale=0.25,center]{printEntry_func.png}
     \end{block}
 \end{frame}
 %-------------------------
