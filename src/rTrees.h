@@ -43,6 +43,7 @@ struct rTree
     Entry *start;    // contains a pointer to root of the tree.
     Node *root;
     int no_of_nodes; // for illustration purpose
+    int curr_no_of_nodes;
 };
 
 typedef struct point point;

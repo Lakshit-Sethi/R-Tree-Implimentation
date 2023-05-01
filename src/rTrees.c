@@ -23,6 +23,7 @@ Node *createNode(Entry *parentEntry, Node *parent, rTree *tree)
     node->parent = parent;
     node->entries = (Entry **)malloc((tree->maxChildren+1) * (sizeof(Entry *)));
     node->index = tree->no_of_nodes++;
+    tree->curr_no_of_nodes++;
     return node;
 }
 
@@ -44,6 +45,7 @@ rTree *createRtree(int minchild, int maxchild)
     tree->start = (Entry *)malloc(sizeof(Entry));
     tree->start->rectangle = NULL;
     tree->no_of_nodes = 0;
+    tree->curr_no_of_nodes = 0;
     tree->root = createNode(tree->start,NULL, tree);
     tree->root->isLeaf = 1;
     return tree;

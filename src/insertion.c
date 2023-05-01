@@ -218,7 +218,16 @@ void quadraticSplit(Node *currNode, rTree *tree)
             currNode->noOfEntries--;
         }
     }
-
+    for(int i=0;i<group1->noOfEntries;i++)
+    {
+        if(group1->entries[i]->childNode!=NULL)
+        group1->entries[i]->childNode->parent=group1;
+    }
+    for(int i=0;i<group2->noOfEntries;i++)
+    {
+        if(group2->entries[i]->childNode!=NULL)
+        group2->entries[i]->childNode->parent=group2;
+    }
     // if the current node is the root node, create a new root node and add the groups as its children
     if (currNode->parent == NULL)
     {
@@ -250,6 +259,8 @@ void quadraticSplit(Node *currNode, rTree *tree)
 
         group2->parentEntry = currNode->parent->entries[currNode->parent->noOfEntries - 1];
         group2->parent = currNode->parent;
+
+        tree->curr_no_of_nodes--;
     }
 
     blue("[Exiting Split]\n");
@@ -283,9 +294,11 @@ void adjustTree(Node *currNode, rTree *tree)
     // if the parent node needs to be split, split it and adjust the tree
     if (parent->noOfEntries > tree->maxChildren)
     {
+        
         quadraticSplit(parent, tree);
+        if(parent!=tree->root)
         adjustTree(parent, tree);
-        if(parent->parent!=NULL)free(parent);
+        if(parent!=tree->root){free(parent);}
     }
     // else adjust the tree
     else
@@ -316,10 +329,13 @@ void insert(rTree *tree, int minX, int maxX, int minY, int maxY)
     if (currNode->noOfEntries > tree->maxChildren)
     {
         quadraticSplit(currNode, tree);
+        adjustTree(currNode, tree);
+        if(currNode->parent!=NULL){free(currNode);}
     }
-
-    // adjust the tree for changes in the MBRs of the parent nodes
+    else
+    {
     adjustTree(currNode, tree);
+    }
 
     blue("[Exiting Insert]\n");
 }
