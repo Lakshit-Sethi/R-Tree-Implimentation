@@ -10,7 +10,6 @@ void preOrderTraversal_Utility(Node *currNode)
         return;
     }
 
-    // print the current node
     printNode(currNode);
     
     // recursively call the function for the child nodes

@@ -250,8 +250,6 @@ void quadraticSplit(Node *currNode, rTree *tree)
 
         group2->parentEntry = currNode->parent->entries[currNode->parent->noOfEntries - 1];
         group2->parent = currNode->parent;
-
-        free(currNode);
     }
 
     blue("[Exiting Split]\n");
@@ -286,9 +284,9 @@ void adjustTree(Node *currNode, rTree *tree)
     if (parent->noOfEntries > tree->maxChildren)
     {
         quadraticSplit(parent, tree);
-        adjustTree(parent->parent, tree);
+        adjustTree(parent, tree);
+        if(parent->parent!=NULL)free(parent);
     }
-
     // else adjust the tree
     else
     {

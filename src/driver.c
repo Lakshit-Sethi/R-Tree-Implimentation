@@ -4,7 +4,7 @@ int main()
 {
     rTree *tree = createRtree(2, 4);
     // read the input from the file
-    FILE *fp = fopen("data/complete_data.txt", "r");
+    FILE *fp = fopen("data/sample_data.txt", "r");
     while(!feof(fp))
     {
         int x1, y1;
