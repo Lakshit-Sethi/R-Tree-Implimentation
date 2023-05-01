@@ -9,6 +9,8 @@
 \usepackage{listings}
 \DeclareRobustCommand{\bbone}{\text{\usefont{U}{bbold}{m}{n}1}}
 
+\setbeamertemplate{navigation symbols}{} 
+\date{MAY 3,2023}
 \DeclareMathOperator{\EX}{\mathbb{E}}% expected value
 %------------------------------------------------------------
 %This block of code defines the information to appear in the
@@ -23,6 +25,7 @@
 \institute[BITS Pilani] % (optional)
 {
   Birla Institute of Technology and Science,Pilani\\
+  Dr.Jagat Sesh Challa
 }
 
 %End of title page configuration block
@@ -71,6 +74,12 @@
     Each node has a boolean isLeaf which checks whether it is a leaf node or not.
 \end{itemize}
 \end{frame}
+
+\begin{frame}
+\frametitle{R-Tree Structure}
+\includegraphics[scale=0.7,center]{Structs_relations.jpeg}
+\end{frame}
+
 \begin{frame}{R-Tree Structure}
     \begin{block}{MBR}
     Minimum Bounding Rectangle.It contains two pairs of integers which defines the bounds along X-axis and Y-axis
